@@ -2,17 +2,30 @@ import {
   View,
   Text,
   TextInput,
+  Alert,
   TouchableOpacity,
   StyleSheet
-} from "react-native"
+} from 'react-native'
 import { useState } from 'react'
+import { Link, router } from 'expo-router'
+import { createUserWithEmailAndPassword } from 'firebase/auth'
 
-import { Link, router } from "expo-router"
-import Button from "../../components/Button"
+import { auth } from '../../config'
+import Button from '../../components/Button'
 
-const handlePress = (): void => {
+const handlePress = (email: string, password: string): void => {
   //sign up
-  router.push("/memo/list")
+  console.log(email, password)
+  createUserWithEmailAndPassword(auth, email, password)
+    .then((userCredential) => {
+      console.log(userCredential.user.uid)
+      router.replace('/memo/list')
+    })
+    .catch((error) => {
+      const {code, message} = error
+      console.log(code, message)
+      Alert.alert(message)
+    })
 }
 
 const SignUp = (): JSX.Element => {
@@ -28,7 +41,7 @@ const SignUp = (): JSX.Element => {
           onChangeText={(text) => { setEmail(text) }}
           autoCapitalize='none'
           keyboardType='email-address'
-          placeholder="Email Adress"
+          placeholder='Email Adress'
           textContentType='emailAddress'
         />
         <TextInput
@@ -37,13 +50,13 @@ const SignUp = (): JSX.Element => {
           onChangeText={(text) => { setPassword(text) }}
           autoCapitalize='none'
           secureTextEntry
-          placeholder="Password"
+          placeholder='Password'
           textContentType='password'
         />
-        <Button label="Submit" onPress={handlePress} />
+        <Button label='Submit' onPress={() => { handlePress(email, password) }} />
         <View style={styles.footer}>
           <Text style={styles.footerText}>Already registered?</Text>
-          <Link href="/auth/log_in" asChild>
+          <Link href='/auth/log_in' asChild replace>
             <TouchableOpacity>
               <Text style={styles.footerLink}>Log In here!</Text>
             </TouchableOpacity>
@@ -57,41 +70,41 @@ const SignUp = (): JSX.Element => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FFF3E3"
+    backgroundColor: '#FFF3E3'
   },
   inner: {
     paddingVertical: 24,
     paddingHorizontal: 27
   },
   title: {
-    color: "#592D13",
+    color: '#592D13',
     fontSize: 24,
     lineHeight: 32,
-    fontWeight: "bold",
+    fontWeight: 'bold',
     marginBottom: 24
   },
   input: {
     borderWidth: 1,
-    borderColor: "#DDDDDD",
-    backgroundColor: "#ffffff",
+    borderColor: '#DDDDDD',
+    backgroundColor: '#ffffff',
     height: 48,
     padding: 8,
     fontSize: 16,
     marginBottom: 16
   },
   footer: {
-    flexDirection: "row"
+    flexDirection: 'row'
   },
   footerText: {
     fontSize: 14,
     lineHeight: 24,
     marginRight: 8,
-    color: "#592D13"
+    color: '#592D13'
   },
   footerLink: {
     fontSize: 14,
     lineHeight: 24,
-    color: "#00536D"
+    color: '#00536D'
   }
 })
 

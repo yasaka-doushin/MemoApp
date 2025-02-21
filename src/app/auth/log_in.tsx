@@ -2,18 +2,31 @@ import {
   View,
   Text,
   TextInput,
+  Alert,
   TouchableOpacity,
   StyleSheet
-} from "react-native"
+} from 'react-native'
 
-import { Link, router } from "expo-router"
+import { Link, router } from 'expo-router'
 import { useState } from 'react'
+import { signInWithEmailAndPassword } from 'firebase/auth'
 
-import Button from "../../components/Button"
+import Button from '../../components/Button'
+import { auth } from '../../config'
 
-const handlePress = (): void => {
+const handlePress = (email: string, password: string): void => {
   //log in
-  router.replace('/memo/list')
+  signInWithEmailAndPassword(auth, email, password)
+    .then((userCredential) => {
+      console.log(userCredential.user.uid)
+      router.replace('/memo/list')
+    })
+    .catch((error) => {
+      const { code, message } = error
+      console.log(code, message)
+      Alert.alert(message)
+    })
+
 }
 
 const LogIn = (): JSX.Element => {
@@ -29,7 +42,7 @@ const LogIn = (): JSX.Element => {
           onChangeText={(text) => { setEmail(text) }}
           autoCapitalize='none'
           keyboardType='email-address'
-          placeholder="Email Adress"
+          placeholder='Email Adress'
           textContentType='emailAddress'
         />
         <TextInput
@@ -38,13 +51,13 @@ const LogIn = (): JSX.Element => {
           onChangeText={(text) => { setPassword(text) }}
           autoCapitalize='none'
           secureTextEntry
-          placeholder="Password"
+          placeholder='Password'
           textContentType='password'
         />
-        <Button label="Submit" onPress={handlePress} />
+        <Button label='Submit' onPress={() => {handlePress(email, password)} } />
         <View style={styles.footer}>
           <Text style={styles.footerText}>Not registered?</Text>
-          <Link href="/auth/sign_up" asChild>
+          <Link href='/auth/sign_up' asChild replace>
             <TouchableOpacity>
               <Text style={styles.footerLink}>Sign up here!</Text>
             </TouchableOpacity>
@@ -58,41 +71,41 @@ const LogIn = (): JSX.Element => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FFF3E3"
+    backgroundColor: '#FFF3E3'
   },
   inner: {
     paddingVertical: 24,
     paddingHorizontal: 27
   },
   title: {
-    color: "#592D13",
+    color: '#592D13',
     fontSize: 24,
     lineHeight: 32,
-    fontWeight: "bold",
+    fontWeight: 'bold',
     marginBottom: 24
   },
   input: {
     borderWidth: 1,
-    borderColor: "#DDDDDD",
-    backgroundColor: "#ffffff",
+    borderColor: '#DDDDDD',
+    backgroundColor: '#ffffff',
     height: 48,
     padding: 8,
     fontSize: 16,
     marginBottom: 16
   },
   footer: {
-    flexDirection: "row"
+    flexDirection: 'row'
   },
   footerText: {
     fontSize: 14,
     lineHeight: 24,
     marginRight: 8,
-    color: "#592D13"
+    color: '#592D13'
   },
   footerLink: {
     fontSize: 14,
     lineHeight: 24,
-    color: "#00536D"
+    color: '#00536D'
   }
 })
 
